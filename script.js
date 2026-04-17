@@ -31,21 +31,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
   /* ──────────────────────────────────────
-     VIDEO MODAL
+     VIDEO MODAL + THUMBNAILS
   ────────────────────────────────────── */
   const cards       = document.querySelectorAll('.work-card');
   const videoModal  = document.getElementById('videoModal');
   const modalIframe = document.getElementById('modalIframe');
   const modalClose  = document.getElementById('modalClose');
 
+  // Auto-load real YouTube thumbnails into each card
+  cards.forEach(card => {
+    const id = card.getAttribute('data-video');
+    const visual = card.querySelector('.wc-visual');
+    if (id && visual) {
+      visual.style.backgroundImage = `url(https://img.youtube.com/vi/${id}/maxresdefault.jpg)`;
+      visual.style.backgroundSize  = 'cover';
+      visual.style.backgroundPosition = 'center';
+    }
+  });
+
   function openVideoModal(id) {
-    modalIframe.src = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0&modestbranding=1`;
-    videoModal.classList.add('open');
+    // Show loading state
+    modalIframe.src = '';
+    videoModal.classList.add('open', 'loading');
     document.body.style.overflow = 'hidden';
+    // Short delay so modal animation plays before iframe loads
+    setTimeout(() => {
+      modalIframe.src = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0&modestbranding=1`;
+      modalIframe.onload = () => videoModal.classList.remove('loading');
+    }, 100);
   }
 
   function closeVideoModal() {
-    videoModal.classList.remove('open');
+    videoModal.classList.remove('open', 'loading');
     modalIframe.src = '';
     document.body.style.overflow = '';
   }
